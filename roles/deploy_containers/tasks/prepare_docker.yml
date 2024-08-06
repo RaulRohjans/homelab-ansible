@@ -15,4 +15,4 @@
 - name: Update resolv.conf with Google DNS (fix issues with registries)
   ansible.builtin.command:
     cmd: "echo 'nameserver 8.8.8.8' | sudo tee /etc/resolv.conf > /dev/null"
-    become: yes
+    become: true
