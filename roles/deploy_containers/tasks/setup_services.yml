@@ -9,7 +9,7 @@
 
 - name: Copy service templates to corresponding folders
   ansible.builtin.template:
-    src: "{{ item.name }}/{{ item.name }}.yml.j2"
+    src: "{{ item.name }}/docker-compose.yml.j2"
     dest: "{{ machine_data_path }}/docker/{{ item.name }}/docker-compose.yml"
     mode: '0644'
   loop: "{{ deploy_containers_services }}"
@@ -24,6 +24,6 @@
 
 - name: Deploy services to Docker
   ansible.builtin.command:
-    cmd: "docker-compose -f {{ machine_data_path }}/docker/{{ item.name }}/docker-compose.yml up -d"
+    cmd: "docker compose -f {{ machine_data_path }}/docker/{{ item.name }}/docker-compose.yml up -d"
   changed_when: false
   loop: "{{ deploy_containers_services }}"

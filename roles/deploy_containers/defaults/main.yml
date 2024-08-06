@@ -1,7 +1,4 @@
 ---
-deploy_containers_networks:
-  # - test-network
-
 deploy_containers_storage_path: "{{ docker_storage_mount_point }}"
 
 deploy_containers_registry: "registry.local.rohjans.com"

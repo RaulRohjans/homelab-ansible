@@ -12,6 +12,11 @@
     mode: '0644'
   become: true
 
+- name: Give execute permission to backup script
+  ansible.builtin.file:
+    path: "{{ setup_backups_storage_script_location }}/storage-backup.sh"
+    mode: '0755'
+
 - name: Set up cron for file backups
   ansible.builtin.cron:
     name: "storage_backup_script"

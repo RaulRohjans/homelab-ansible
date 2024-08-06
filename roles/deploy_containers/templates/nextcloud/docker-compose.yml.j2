@@ -5,7 +5,7 @@ services:
     restart: always
     command: --transaction-isolation=READ-COMMITTED --log-bin=binlog --binlog-format=ROW
     volumes:
-      - {{ deploy_containers_registry }}/nextcloud/db:/var/lib/mysql
+      - {{ docker_storage_mount_point }}/nextcloud/db:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=12345
       - MYSQL_PASSWORD=12345
@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     volumes:
-      - {{ deploy_containers_registry }}/nextcloud/html-data:/var/www/html
+      - {{ docker_storage_mount_point }}/nextcloud/html-data:/var/www/html
       - {{ samba_share_path }}:/external-storage
     environment:
       - MYSQL_PASSWORD=12345
