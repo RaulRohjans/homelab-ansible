@@ -1,0 +1,68 @@
+---
+- name: Create base backup directory
+  ansible.builtin.file:
+    path: "{{ bagsplus_backup_location }}"
+    state: directory
+    mode: '0755'
+
+- name: Create directories for each store
+  ansible.builtin.file:
+    path: "{{ item.backup_path }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ bagsplus_backup_stores }}"
+
+- name: Configure backup script
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: "{{ bagsplus_backup_location }}/backup.sh"
+    mode: '0644'
+
+- name: Give execute permission to backup script
+  ansible.builtin.file:
+    path: "{{ bagsplus_backup_location }}/backup.sh"
+    mode: '0755'
+
+- name: Ensure MySQL client is installed
+  ansible.builtin.apt:
+    name: mariadb-client
+    state: present
+    update_cache: true
+
+- name: Ensure cron is installed
+  ansible.builtin.apt:
+    name: cron
+    state: present
+    update_cache: true
+
+- name: Set up cron jobs every hour to backup
+  ansible.builtin.cron:
+    name: "backup_script"
+    minute: "0"
+    hour: "10-22"
+    job: "{{ bagsplus_backup_location }}/backup.sh"
+    user: root
+
+- name: Add crontab entry for 10:15 AM
+  ansible.builtin.cron:
+    name: "backup_script_10_15"
+    minute: "15"
+    hour: "10"
+    job: "{{ bagsplus_backup_location }}/backup.sh"
+    user: root
+
+- name: Add crontab entry for 9:45 PM
+  ansible.builtin.cron:
+    name: "backup_script_21_45"
+    minute: "45"
+    hour: "21"
+    job: "{{ bagsplus_backup_location }}/backup.sh"
+    user: root
+
+- name: Add crontab entry for 9:50 PM
+  ansible.builtin.cron:
+    name: "backup_script_21_50"
+    minute: "50"
+    hour: "21"
+    job: "{{ bagsplus_backup_location }}/backup.sh"
+    user: root

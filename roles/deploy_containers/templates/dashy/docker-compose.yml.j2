@@ -1,0 +1,9 @@
+services:
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
+    restart: always
+    volumes:
+      - {{ docker_storage_mount_point }}/dashy/user-data:/app/user-data
+    ports:
+      - 4012:8080

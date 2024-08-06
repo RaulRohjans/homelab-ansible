@@ -1,0 +1,7 @@
+services:
+  bagsplus-web:
+    image: {{ deploy_containers_registry }}/bagsplus-web:latest
+    container_name: bagsplus-web
+    restart: always
+    ports:
+      - 3030:3030

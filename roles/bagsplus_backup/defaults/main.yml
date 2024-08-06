@@ -1,0 +1,17 @@
+---
+bagsplus_backup_location: "{{ machine_data_path }}/bagsplus-db"
+
+bagsplus_backup_import_db_host: "{{ groups['mainservers'][0] }}"
+bagsplus_backup_import_db_user: "root"
+bagsplus_backup_import_db_password: "12345"
+
+bagsplus_backup_stores: []
+  # - backup_path: "{{ bagsplus_backup_location }}/test-store"
+  #   name: "Test Store"
+  #   db_host: 192.168.1.1
+  #   db_port: "3306"
+  #   db_name: "test"
+  #   db_username: "admin"
+  #   db_password: "12345"
+
+  #   import_db_name: "test"

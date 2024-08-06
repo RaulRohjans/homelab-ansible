@@ -1,0 +1,9 @@
+services:
+  kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+    ports:
+      - 3001:3001
+    volumes:
+      - {{ docker_storage_mount_point }}/uptime-kuma/data:/app/data

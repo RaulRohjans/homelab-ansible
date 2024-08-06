@@ -1,0 +1,59 @@
+---
+deploy_containers_networks:
+  # - test-network
+
+deploy_containers_storage_path: "{{ docker_storage_mount_point }}"
+
+deploy_containers_registry: "registry.local.rohjans.com"
+
+deploy_containers_services:
+  - name: docker-registry
+    has_env: false
+
+  - name: ntfy
+    has_env: false
+
+  - name: portainer
+    has_env: false
+
+  - name: dashy
+    has_env: false
+
+  - name: cloudflared-bagsplus
+    has_env: false
+
+  - name: cloudflared-rohjans
+    has_env: false
+
+  - name: nginx-proxy-manager
+    has_env: false
+
+  - name: mariadb
+    has_env: false
+
+  - name: immich
+    has_env: true
+
+  - name: nextcloud
+    has_env: false
+
+  - name: bgs-webadmin
+    has_env: false
+
+  - name: bagsplus-web
+    has_env: false
+
+  - name: qbittorrent
+    has_env: false
+
+  - name: plausible
+    has_env: true
+
+  - name: spenser
+    has_env: false
+
+  - name: spenser-demo
+    has_env: false
+
+  - name: uptime-kuma
+    has_env: false
