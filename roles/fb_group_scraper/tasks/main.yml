@@ -1,0 +1,32 @@
+---
+- name: Create base directory
+  ansible.builtin.file:
+    path: "{{ fb_group_scraper_location }}"
+    state: directory
+    mode: '0755'
+
+- name: Configure notifiy script
+  ansible.builtin.template:
+    src: notify.sh.j2
+    dest: "{{ fb_group_scraper_location }}/notifiy.sh"
+    mode: '0644'
+
+- name: Give execute permission to script
+  ansible.builtin.file:
+    path: "{{ fb_group_scraper_location }}/notifiy.sh"
+    mode: '0755'
+
+- name: Ensure cron is installed
+  ansible.builtin.apt:
+    name: cron
+    state: present
+    update_cache: true
+
+- name: Set up cron jobs every hour to notify
+  ansible.builtin.cron:
+    name: "notify_script"
+    minute: "0"
+    hour: "*/4"
+    job: "{{ fb_group_scraper_location }}/notifiy.sh"
+    user: root
+    state: present

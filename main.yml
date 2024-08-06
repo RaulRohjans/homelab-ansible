@@ -8,3 +8,4 @@
     - { role: deploy_containers }
     - { role: bagsplus_backup }
     - { role: setup_backups }
+    - { role: fb_group_scraper }

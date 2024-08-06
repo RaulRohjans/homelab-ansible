@@ -1,0 +1,2 @@
+---
+fb_group_scraper_location: "{{ machine_data_path }}/fb-group-scraper"
