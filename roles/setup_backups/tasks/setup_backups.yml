@@ -12,12 +12,32 @@
     mode: '0644'
   become: true
 
+- name: Copy immich backup script
+  ansible.builtin.template:
+    src: immich-backup.sh.j2
+    dest: "{{ setup_backups_storage_script_location }}/immich-backup.sh"
+    mode: '0644'
+  become: true
+
 - name: Give execute permission to backup script
   ansible.builtin.file:
     path: "{{ setup_backups_storage_script_location }}/storage-backup.sh"
     mode: '0755'
 
-- name: Set up cron for file backups
+- name: Give execute permission to backup script
+  ansible.builtin.file:
+    path: "{{ setup_backups_storage_script_location }}/immich-backup.sh"
+    mode: '0755'
+
+- name: Set up cron for immich backups
+  ansible.builtin.cron:
+    name: "immich_backup_script"
+    minute: "30"
+    hour: "0"
+    job: "{{ setup_backups_storage_script_location }}/immich-backup.sh"
+    user: root
+
+- name: Set up cron for storage backups
   ansible.builtin.cron:
     name: "storage_backup_script"
     minute: "0"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+backup_file_path="{{ docker_storage_mount_point }}/immich/immich-backups"
+
+# Make sure path exists
+if [ ! -d "$backup_file_path" ]; then
+  mkdir -p "$backup_file_path"
+fi
+
+# Create backup
+docker exec -t immich_postgres pg_dumpall --clean --if-exists --username=postgres | gzip > "$backup_file_path/$(date +'%Y-%m-%d_%Hh%Mm%Ss').sql.gz"
+
+# Remove backups older than 7 days
+find "$backup_file_path" -name "*.sql.gz" -type f -mtime +7 -delete
