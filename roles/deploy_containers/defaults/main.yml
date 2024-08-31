@@ -7,6 +7,9 @@ deploy_containers_services:
   - name: docker-registry
     has_env: false
 
+  - name: personal-portfolio
+    has_env: false
+
   - name: ntfy
     has_env: false
 
