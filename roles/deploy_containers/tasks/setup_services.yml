@@ -22,6 +22,19 @@
   loop: "{{ deploy_containers_services }}"
   when: item.has_env
 
+# With OpenTelemetry we need to copy all of the config files as well
+- name: Copy OTLP prometheus config
+  ansible.builtin.template:
+    src: "open-telemetry/prometheus.yaml.j2"
+    dest: "{{ machine_data_path }}/docker/open-telemetry/prometheus.yaml"
+    mode: '0644'
+
+- name: Copy OTLP collector config
+  ansible.builtin.template:
+    src: "open-telemetry/otel-collector-config.yaml.j2"
+    dest: "{{ machine_data_path }}/docker/open-telemetry/otel-collector-config.yaml"
+    mode: '0644'
+
 - name: Deploy services to Docker
   ansible.builtin.command:
     cmd: "docker compose -f {{ machine_data_path }}/docker/{{ item.name }}/docker-compose.yml up -d"

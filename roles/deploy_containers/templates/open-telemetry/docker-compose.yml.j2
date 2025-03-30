@@ -1,0 +1,51 @@
+services:
+    jaeger:
+        image: jaegertracing/all-in-one:latest
+        container_name: jaeger
+        restart: always
+        ports:
+            - "16686:16686"
+
+    otel-collector:
+        image: otel/opentelemetry-collector:0.121.0
+        container_name: otel_collector
+        restart: always
+        command: ["--config=/etc/otel-collector-config.yaml"]
+        volumes:
+            - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+        ports:
+            - "4317:4317"   # OTLP gRPC receiver
+            - "4318:4318"   # OTLP HTTP receiver
+        depends_on:
+            - jaeger
+            - prometheus
+
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: prometheus
+        restart: always
+        volumes:
+            - {{ docker_storage_mount_point }}/open-telemetry/prometheus:/prometheus
+            - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+
+    grafana:
+        image: grafana/grafana
+        container_name: grafana
+        restart: always
+        volumes:
+            - {{ docker_storage_mount_point }}/open-telemetry/grafana:/var/lib/grafana
+        ports:
+            - 3035:3000
+
+    cadvisor:
+        image: gcr.io/cadvisor/cadvisor
+        container_name: cadvisor
+        restart: always
+        privileged: true
+        devices:
+          - /dev/kmsg
+        volumes:
+          - /:/rootfs:ro
+          - /var/run:/var/run:ro
+          - /sys:/sys:ro
+          - /var/lib/docker/:/var/lib/docker:ro
