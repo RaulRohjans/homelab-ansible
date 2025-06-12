@@ -1,0 +1,100 @@
+---
+- name: Create storage backup config directory
+  ansible.builtin.file:
+    path: "{{ setup_backups_storage_script_location }}"
+    state: directory
+    mode: '0755'
+
+- name: Create git backup destination folder
+  ansible.builtin.file:
+    path: "{{ setup_backups_git_location }}"
+    state: directory
+    mode: '0755'
+
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: Generate SSH key for git backups (if not present)
+  community.crypto.openssh_keypair:
+    path: "/home/{{ ansible_user }}/.ssh/id_git_backup"
+    type: ed25519
+    comment: "git-backup@{{ inventory_hostname }}"
+    mode: '0600'
+  register: git_ssh_key
+
+- name: Create SSH config entry for GitHub
+  ansible.builtin.blockinfile:
+    path: "/home/{{ ansible_user }}/.ssh/config"
+    create: yes
+    mode: '0600'
+    block: |
+      Host github.com
+          HostName github.com
+          User git
+          IdentityFile ~/.ssh/id_git_backup
+          IdentitiesOnly yes
+
+- name: Fix ownership of .ssh directory and contents
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    recurse: yes
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Ensure correct permissions for SSH files
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.ssh/{{ item.name }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - { name: "id_git_backup", mode: "0600" }
+    - { name: "id_git_backup.pub", mode: "0644" }
+    - { name: "config", mode: "0600" }
+
+- name: Read the public key content from the remote machine
+  ansible.builtin.slurp:
+    src: "/home/{{ ansible_user }}/.ssh/id_git_backup.pub"
+  register: git_pubkey
+
+- name: Display public SSH key (add this to your GitHub account)
+  ansible.builtin.debug:
+    msg: |
+      Add the following public key to your GitHub account:
+      {{ git_pubkey.content | b64decode }}
+
+- name: Wait for user to confirm SSH key was added to GitHub
+  ansible.builtin.pause:
+    prompt: "Press Enter when the SSH key has been added to your GitHub account (https://github.com/settings/keys)"
+
+- name: Clone all git repositories as mirrors via SSH
+  ansible.builtin.git:
+    repo: "git@github.com:RaulRohjans/{{ item.name }}.git"
+    dest: "{{ setup_backups_git_location }}/{{ item.name }}.git"
+    bare: yes
+    update: no
+    key_file: "/home/{{ ansible_user }}/.ssh/id_git_backup"
+    accept_hostkey: true
+  loop: "{{ repositories_to_backup }}"
+
+- name: Copy storage backup script
+  ansible.builtin.template:
+    src: git-backup.sh.j2
+    dest: "{{ setup_backups_storage_script_location }}/git-backup.sh"
+    mode: '0644'
+  become: true
+
+- name: Give execute permission to backup script
+  ansible.builtin.file:
+    path: "{{ setup_backups_storage_script_location }}/git-backup.sh"
+    mode: '0755'
+
+- name: Set up cron for storage backups
+  ansible.builtin.cron:
+    name: "storage_backup_script"
+    minute: "30"
+    hour: "1"
+    job: "{{ setup_backups_storage_script_location }}/git-backup.sh"
+    user: root

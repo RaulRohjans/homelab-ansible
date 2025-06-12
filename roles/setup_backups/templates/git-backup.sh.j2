@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cd "{{ setup_backups_git_location }}"
+
+export GIT_SSH_COMMAND="ssh -i /home/{{ ansible_user }}/.ssh/id_git_backup -F /dev/null"
+
+find . -maxdepth 1 -type d -name "*.git" | while read -r dir; do
+    echo "Pulling latest for $dir"
+    git --git-dir="$dir" remote update --prune
+done
