@@ -10,5 +10,9 @@ fi
 # Create backup
 docker exec -t immich_postgres pg_dumpall --clean --if-exists --username=postgres | gzip > "$backup_file_path/$(date +'%Y-%m-%d_%Hh%Mm%Ss').sql.gz"
 
-# Remove backups older than 7 days
-find "$backup_file_path" -name "*.sql.gz" -type f -mtime +7 -delete
+# Remove backups older than 30 days only if there are more than 30 files
+file_count=$(find "$backup_file_path" -name "*.sql.gz" -type f | wc -l)
+
+if [ "$file_count" -gt 30 ]; then
+  find "$backup_file_path" -name "*.sql.gz" -type f -mtime +30 -delete
+fi
